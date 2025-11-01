@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: sentinel-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  node-consumer:
+    build: ./node-app
+    container_name: node-consumer
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - postgres
+    command: node index.js
+
+volumes:
+  pgdata:
+    driver: local
